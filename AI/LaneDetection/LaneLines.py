@@ -226,43 +226,41 @@ class LaneLines:
 
         if self.msg == STRAIGHT:
             alpha = x_motor
-            speed = speed_cmd
+            speed = speed_cmd - x_battery
 
         if self.msg == LEFT:
             if self.pos >= 0.5:
-                alpha = 35 + x_battery
-                speed = speed_cmd - 45 + x_battery
+                alpha = 35
+                speed = speed_cmd - 50 - x_battery
             elif self.pos >= 0.4:
-                alpha = 30 + x_battery
-                speed = speed_cmd - 40 + x_battery
+                alpha = 30
+                speed = speed_cmd - 40 - x_battery
             elif self.pos >= 0.3:
-                alpha = 25 + x_battery
-                speed = speed_cmd - 30 + x_battery
+                alpha = 25
+                speed = speed_cmd - 30 - x_battery
             elif self.pos >= 0.2:
-                alpha = 20 + x_battery
-                speed = speed_cmd - 20 + x_battery
+                alpha = 20
+                speed = speed_cmd - 20 - x_battery
             elif self.pos >= 0.1:
-                alpha = 15 + x_battery
-                speed = speed_cmd - 15 + x_battery
+                alpha = 10
+                speed = speed_cmd - 15 - x_battery
 
         if self.msg == RIGHT:
             if self.pos <= -0.5:
-                alpha = 35 + x_battery
-                speed = speed_cmd - 45 + x_battery
+                alpha = 35
+                speed = speed_cmd - 50 - x_battery
             elif self.pos <= -0.4:
-                alpha = 30 + x_battery
-                speed = speed_cmd - 40 + x_battery
+                alpha = 30
+                speed = speed_cmd - 40 - x_battery
             elif self.pos <= -0.3:
-                alpha = 25 + x_battery
-                speed = speed_cmd - 30 + x_battery
+                alpha = 25
+                speed = speed_cmd - 30 - x_battery
             elif self.pos <= -0.2:
-                alpha = 20 + x_battery
-                speed = speed_cmd - 20 + x_battery
+                alpha = 20
+                speed = speed_cmd - 20 - x_battery
             elif self.pos <= -0.1:
-                alpha = 15 + x_battery
-                speed = speed_cmd - 15 + x_battery
-            speed += x_motor
-            alpha += x_motor
+                alpha = 10
+                speed = speed_cmd - 15 - x_battery
 
         command = f"{self.msg} {speed} {int(alpha)}"
 

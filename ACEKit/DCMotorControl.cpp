@@ -40,9 +40,6 @@ void DCMotorControl::CarMovementControl(uint8_t direction, uint8_t speed, int8_t
         // Turn
         SettingMotor(0, speed);
         delay(alpha * 100);
-        // Forward
-        SettingMotor(speed, speed);
-        delay(200);
         break;
     case TURN_RIGHT:
         // Forward
@@ -53,9 +50,6 @@ void DCMotorControl::CarMovementControl(uint8_t direction, uint8_t speed, int8_t
         // Turn
         SettingMotor(speed, 0);
         delay(alpha * 100);
-        // Forward
-        SettingMotor(speed, speed);
-        delay(200);
         break;
 
     case STANDBY:

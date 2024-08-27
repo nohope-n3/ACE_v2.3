@@ -23,11 +23,11 @@
 #include <cstring>
 #include <stdio.h>
 
-const char *ssid = "P109";
+const char *ssid = "ACE_UDP";
 const char *password = "12345678";
 
 WiFiUDP Udp;
-const char *udpAddressLaptop = "192.168.109.106";
+const char *udpAddressLaptop = "192.168.1.36";
 const uint16_t udpPortLaptop = 3000;
 const uint16_t udpPortCam = 3001;
 

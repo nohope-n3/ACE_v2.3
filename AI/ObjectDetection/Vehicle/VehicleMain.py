@@ -29,15 +29,15 @@ STRAIGHT = 1
 SLOW = 2
 STOP = 10
 
-ip_lap = "192.168.109.102"
+ip_lap = "192.168.1.220"
 port_lap = 7000
 
-ip_lap_lead = "192.168.109.106"
+ip_lap_lead = "192.168.1.36"
 port_lap_lead = 7001
 
-model_path = r'AI\ObjectDetection\YoloWeights\Vehicle.pt'
+model_path = r"C:\Users\Public\ACE\best.pt"
 car_detector = VehicleDetector(model_path=model_path,
-                               force_reload=True)
+                               force_reload=False)
 object_tracker = DeepSort(max_age=3,
                           n_init=2,
                           nms_max_overlap=1.0,
@@ -131,7 +131,7 @@ def detect_car():
                 class_label = track.det_class
                 conf = track.det_conf if track.det_conf is not None else 0.0
 
-                if bbox_y2 >= image.shape[0] - 100:
+                if bbox_y2 >= image.shape[0] - 200:
                     cmd = STOP
 
                     # Change color

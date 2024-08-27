@@ -28,19 +28,19 @@ STOP = 10
 SLOW = 100
 NORMAL = 150
 FAST = 200
-SPEED_CMD = NORMAL
+SPEED_CMD = 165
 X_BATTERY = 0
-X_MOTOR = -5
+X_MOTOR = 0
 
-ip_lap_lead = "192.168.109.106"
+ip_lap_lead = "192.168.1.36"
 port_lap_lead = 3000
 port_get_member_car = 7001
 port_get_member_sign = 8001
 
-ip_cam = "192.168.109.105"
+ip_cam = "192.168.1.167"
 port_cam = 3001
 
-ip_lap_member_car = "192.168.109.107"
+ip_lap_member_car = "192.168.1.220"
 port_lap_member_car = 7000
 
 ip_lap_member_sign = "192.168.1.129"
@@ -72,7 +72,6 @@ def create_udp_socket_send():
 
 
 def handle_control_command():
-    print(cmd_member_car, cmd_member_sign)
     if STOP in (cmd_member_car, cmd_member_sign):
         cmd = f"{STOP} {SPEED_CMD} {0}"
         return cmd
@@ -86,16 +85,15 @@ def handle_control_command():
         return cmd
 
     if cmd_member_sign == FORWARD:
-        cmd = f"{STANDBY} {SPEED_CMD} {5}"
+        cmd = f"{STANDBY} {SPEED_CMD + 10} {5}"
         return cmd
 
     if cmd_member_sign in (TURNLEFT, TURNRIGHT):
-        cmd = f"{cmd_member_sign} {SPEED_CMD} {5}"
+        cmd = f"{cmd_member_sign} {120 - X_BATTERY} {8}"
         return cmd
 
     cmd = lane_detection.lanelines.handle_lane_detect_command(
         SPEED_CMD, X_BATTERY, X_MOTOR)
-    print("Lane: ", cmd)
     return cmd
 
 
@@ -208,15 +206,21 @@ def get_send_image():
 
                 image_array = np.frombuffer(image_data, dtype=np.uint8)
                 image = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
-                image = cv2.resize(image, IMAGE_RESIZE_DIMS)
-                queue_image.put(image)
+                if image is None:
+                    raise ValueError(
+                        "Image decoding failed. The image data may be corrupted.")
 
+                image = cv2.resize(image, IMAGE_RESIZE_DIMS)
+
+                queue_image.put(image)
                 if queue_image.qsize() >= MAX_QUEUE_SIZE:
                     queue_image.get()
+
             except Exception as e:
                 print(f"Failed to convert image: {str(e)}")
 
-            image_data = bytearray()
+            finally:
+                image_data = bytearray()
 
 
 def get_cmd_car():
@@ -228,7 +232,7 @@ def get_cmd_car():
     while True:
         cmd, _ = member_socket_1.recvfrom(BUFFER_SIZE)
         cmd_member_car = int(cmd)
-        print(cmd_member_car)
+        print('Car: ', cmd_member_car)
 
 
 def get_cmd_sign():
@@ -240,7 +244,7 @@ def get_cmd_sign():
     while True:
         cmd, _ = member_socket_2.recvfrom(BUFFER_SIZE)
         cmd_member_sign = int(cmd)
-        print(cmd_member_sign)
+        print('Sign: ', cmd_member_sign)
 
 
 def process_image():
@@ -265,6 +269,7 @@ def process_image():
             # Process command
             image = lane_detection.process_image_rt(image)
             cmd = handle_control_command()
+            # cmd = f"{STRAIGHT} {150} {0}"
 
         except Exception as e:
             # print("Error processing image:", e)
@@ -275,7 +280,6 @@ def process_image():
         # Send command to car kit
         if cmd != prev_cmd:
             try:
-                print(cmd)
                 data_bytes_cmd = cmd.encode()
                 sock_cam.sendto(data_bytes_cmd, (ip_cam, port_cam))
                 print(f"Sent UDP message: '{cmd}' to {ip_cam}:{port_cam}")

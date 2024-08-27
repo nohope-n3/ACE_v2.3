@@ -34,9 +34,11 @@ BACKWARD = 8
 STANDBY = 9
 STOP = 10
 
-ip_lap = "192.168.109.105"
-port_lap = 3000
+ip_lap = "192.168.1.129"
+port_lap = 8000
 
+ip_lap_lead = "192.168.1.36"
+port_lap_lead = 8001
 
 model_path = 'AI\ObjectDetection\YoloWeights\TrafficSign.pt'
 traffic_signs_detector = SignDetector(model_path=model_path,
@@ -106,7 +108,7 @@ def handle_sign_command(sign_list):
         return cmd
 
     if 'stop' in sign_list:
-        cmd = STANDBY
+        cmd = STOP
         return cmd
 
     if 'yellow' in sign_list:
@@ -122,7 +124,7 @@ def handle_sign_command(sign_list):
         return cmd
 
     if 'straight' in sign_list or 'green' in sign_list:
-        cmd = FORWARD
+        cmd = STRAIGHT
         return cmd
 
     else:
@@ -135,9 +137,6 @@ def detect_traffic_sign():
     frame_count = 0
     fps = 0
     prev_cmd = STOP
-
-    ip_lap_lead = "192.168.109.105"
-    port_lap_lead = 7001
     sock = create_udp_socket_send()
 
     while True:
@@ -165,7 +164,7 @@ def detect_traffic_sign():
                 class_label = track.det_class
                 conf = track.det_conf if track.det_conf is not None else 0.0
 
-                if bbox_y2 >= image.shape[0] - 10 or bbox_x1 < 10 or bbox_x2 > image.shape[1] - 10:
+                if bbox_y2 >= image.shape[0] - 400 or bbox_x1 < 300 or bbox_x2 > image.shape[1] - 300:
                     sign_list.add(class_label)
 
                     # Change color
@@ -214,7 +213,7 @@ def detect_traffic_sign():
 def main():
     """Main function to start threads for image processing."""
     threads = [
-        threading.Thread(target=test_image,
+        threading.Thread(target=get_image,
                          name='GetSendImageThread'),
         threading.Thread(target=detect_traffic_sign,
                          name='ProcessImageThread'),
